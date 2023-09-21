@@ -1,16 +1,20 @@
+# Importation des modules nécessaires depuis la bibliothèque cryptography
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes
 
 def generer_cles():
+    # Génération de la clé privée RSA avec un exposant public de 65537 et une taille de 2048 bits
     cle_privee = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,
     )
+    # Récupération de la clé publique associée à la clé privée
     cle_publique = cle_privee.public_key()
     return cle_privee, cle_publique
 
 def crypter(cle_publique, message):
+    # Chiffrement du message avec la clé publique utilisant le padding OAEP et l'algorithme SHA256
     texte_crypte = cle_publique.encrypt(
         message,
         padding.OAEP(
@@ -22,6 +26,7 @@ def crypter(cle_publique, message):
     return texte_crypte
 
 def decrypter(cle_privee, texte_crypte):
+    # Déchiffrement du message chiffré avec la clé privée utilisant le même padding et algorithme que lors du chiffrement
     texte_clair = cle_privee.decrypt(
         texte_crypte,
         padding.OAEP(
@@ -33,6 +38,7 @@ def decrypter(cle_privee, texte_crypte):
     return texte_clair
 
 def signer(cle_privee, message):
+    # Signature du message avec la clé privée utilisant le padding PSS et l'algorithme SHA256
     signature = cle_privee.sign(
         message,
         padding.PSS(
@@ -45,6 +51,7 @@ def signer(cle_privee, message):
 
 def verifier(cle_publique, message, signature):
     try:
+        # Vérification de la signature avec la clé publique utilisant le même padding et algorithme que lors de la signature
         cle_publique.verify(
             signature,
             message,
@@ -56,49 +63,8 @@ def verifier(cle_publique, message, signature):
         )
         return True
     except:
+        # Si la vérification échoue, renvoie False
         return False
 
-'''
 
-Pour envoyer un message:
-Générer des clés:
-
- - Choisissez cette option pour générer une paire de clés (publique et privée).
- - Vous verrez les clés affichées à l'écran. Gardez votre clé privée en sécurité et ne la partagez avec personne.
- - Partagez votre clé publique avec la personne à qui vous souhaitez envoyer un message.
- - Demandez à cette personne de partager sa clé publique avec vous.
- 
-Insérer manuellement des clés:
-
- - Choisissez cette option pour insérer manuellement la clé publique de la personne.
- - Entrez la clé publique de cette personne.
-
-Crypter et signer un message:
-
- - Choisissez cette option pour crypter et signer un message.
- - Tapez votre message.
- - Le programme utilisera la clé publique que vous avez insérée pour crypter le message et votre propre clé privée pour le signer.
- - Le programme affichera le texte crypté et la signature.
- - Envoyez le texte crypté et la signature à la personne.
-
-Pour recevoir et vérifier un message:
-Générer des clés:
-
- - Si vous n'avez pas encore généré de paire de clés, choisissez cette option.
- - Partagez votre clé publique avec la personne qui vous enverra un message.
- - Demandez-lui de partager sa clé publique avec vous.
-
-Insérer manuellement des clés:
-
- - Choisissez cette option pour insérer manuellement la clé publique de la personne.
- - Entrez la clé publique de cette personne.
-
-Décrypter et vérifier un message:
-
- - Choisissez cette option lorsque vous recevez un message crypté et une signature.
- - Entrez le texte crypté et la signature.
- - Le programme utilisera votre clé privée pour décrypter le message et la clé publique de la personne pour vérifier la signature.
- -Le programme affichera le message décrypté et confirmera si la signature est valide.
-
-'''
 
